@@ -1,3 +1,4 @@
+`default_nettype none
 module avs_i2c_top (
     clk,
     reset_n,
@@ -5,7 +6,8 @@ module avs_i2c_top (
     avs_s0_read,
     avs_s0_readdata,
     avs_s0_write,
-    avs_s0_writedata
+    avs_s0_writedata,
+    avs_s0_irq
 );
     input  wire        clk;
     input  wire        reset_n;
@@ -14,6 +16,10 @@ module avs_i2c_top (
     output wire [31:0] avs_s0_readdata;
     input  wire        avs_s0_write;
     input  wire [31:0] avs_s0_writedata;
+    output wire        avs_s0_irq;
+
+
+    assign avs_s0_irq = interrupt;
     assign avs_s0_readdata =  ({32{sel_rxdata}}  & reg_rxdata)
                              |({32{sel_txdata}}  & reg_txdata)
                              |({32{sel_clk_div}} & reg_clk_div)
@@ -31,7 +37,7 @@ module avs_i2c_top (
     wire sel_control = (avs_s0_address == 3);
     wire sel_status  = (avs_s0_address == 4);
 
-    wire rxdata_we  = sel_rxdata  & avs_s0_write;
+    wire rxdata_we = sel_rxdata  & avs_s0_write;
     wire rxdata_en = rxdata_we;
 
     wire txdata_we = sel_txdata  & avs_s0_write;
@@ -41,10 +47,6 @@ module avs_i2c_top (
     wire clk_div_en = clk_div_we;
 
     wire control_we = sel_control & avs_s0_write;
-    
-    //status
-    wire interrupt_en  = control_we | i2c_interrupt;
-    wire ack_en = i2c_interrupt;
     
     //rxdata field
     reg   [7:0] rxdata;
@@ -57,31 +59,21 @@ module avs_i2c_top (
     reg  clk_div;
     wire clk_div_nx;
     //status field
-    reg  ack;
-    wire ack_nx;
-    
-    reg  idle;
-    wire idle_nx;
-    
-    reg  buzy;
-    wire buzy_nx;
-    
+    wire buzy;
+    wire ack;
     reg  interrupt;
     wire interrupt_nx;
     //control field
-    wire stop      = control_we & avs_s0_writedata;
-    wire start     = control_we & avs_s0_writedata;
-    wire write     = control_we & avs_s0_writedata;
-    wire read_ack  = control_we & avs_s0_writedata;
-    wire read_nack = control_we & avs_s0_writedata;
-    wire interrupt_clr;//write 1 to clear pending interrupt
+    wire stop      = control_we & avs_s0_writedata[];
+    wire start     = control_we & avs_s0_writedata[];
+    wire write     = control_we & avs_s0_writedata[];
+    wire read_ack  = control_we & avs_s0_writedata[];
+    wire read_nack = control_we & avs_s0_writedata[];
+    wire int_clr   = control_we & avs_s0_writedata[];//write 1 to clear pending interrupt
 
-    assign stop      = en_control & avs_s0_writedata[x];
-    assign start     = en_control & avs_s0_writedata[x];
-    assign write     = en_control & avs_s0_writedata[x];
-    assign read_ack  = en_control & avs_s0_writedata[x];
-    assign read_nack = en_control & avs_s0_writedata[x];
-    
+    //status
+    wire interrupt_en  = int_clr | done; //logic bug
+
     assign rxdata_reg  = {{24{1'b0}}, rxdata};
     assign txdata_reg  = {{24{1'b0}}, txdata};
     assign clk_div_reg = {{24{1'b0}}, clk_div_reg};
@@ -109,20 +101,6 @@ module avs_i2c_top (
     end
 
     //status fileds
-    assign ack_nx = (en_status) ? avs_s0_writedata : ack;
-    always @(posedge clk or negedge reset_n) begin
-        ack <= ack_nx;
-    end
-
-    assign idle_nx = (en_status) ? avs_s0_writedata : idle;
-    always @(posedge clk or negedge reset_n) begin
-        idle <= idle_nx;
-    end
-
-    assign buzy_nx;
-    always @(posedge clk or negedge reset_n) begin
-        buzy <= buzy_nx;
-    end
 
     //control field
     assign int_clr_nx;
