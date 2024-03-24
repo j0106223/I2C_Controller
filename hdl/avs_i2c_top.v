@@ -106,7 +106,7 @@ module avs_i2c_top (
     wire [15:0] clk_div_nx;
     //status field
     wire buzy;
-    wire ack;
+    wire ack_fail;
     reg  interrupt;
     wire interrupt_nx;
     //control field
@@ -184,7 +184,7 @@ module avs_i2c_top (
         .read_nack  (read_nack),
         //status
         .buzy       (buzy),
-        .ack        (ack),
+        .ack_fail   (ack_fail),
         .rx_done    (rx_done),
         .tx_done    (tx_done),
         .start_done (start_done),

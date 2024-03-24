@@ -13,7 +13,7 @@ module i2c_core (
     read_nack,
     //status
     buzy,
-    ack,
+    ack_fail,
     rx_done,
     tx_done,
     start_done,
@@ -39,7 +39,7 @@ module i2c_core (
     input  wire read_nack;
     //status
     output wire buzy;
-    output wire ack;
+    output wire ack_fail;
     output wire rx_done;
     output wire tx_done;
     output wire start_done;
@@ -50,6 +50,13 @@ module i2c_core (
     output wire sda_o;
     output wire scl_o;
     wire scl;
+    wire scl_en;
+    assign scl_o = 
+    assign scl_o = scl_en & scl;
+    
+    //pull sda
+    //pull down scl
+
     clk_divider i2c_clk_gen(
         .reset_n (reset_n),
         .clk_div (clk_div),
