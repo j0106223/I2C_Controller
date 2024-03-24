@@ -1,3 +1,4 @@
+`default_nettype none
 module clk_divider (
     reset_n,
     clk_div,
@@ -6,7 +7,7 @@ module clk_divider (
 );
     
     input  wire reset_n;
-    input  wire clk_div;//divisor, let firmware to calculate it
+    input  wire [15:0]clk_div;//divisor, let firmware to calculate it
     input  wire clk_i;
     output wire clk_o;
 
