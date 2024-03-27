@@ -21,7 +21,7 @@ module io_sync_filter (
         end
     end
 
-    always @(posedge clk_sync or negedge reset_n) begin
+    always @(posedge clk_filter or negedge reset_n) begin
         if (!reset_n) begin
             filter_buffer <= 3'b111;
         end else begin
