@@ -5,6 +5,8 @@ module i2c_core (
     //data
     rxdata,
     txdata,
+    //clk_div
+    clk_div
     //control
     start,
     stop,

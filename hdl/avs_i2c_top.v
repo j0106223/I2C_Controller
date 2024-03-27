@@ -118,7 +118,7 @@ module avs_i2c_top (
     wire int_clr   = control_we & avs_s0_writedata[5];//write 1 to clear pending interrupt
 
 
-
+    //extend to 32 bit for readdata
     assign reg_rxdata  = {{24{1'b0}}, rxdata};
     assign reg_txdata  = {{24{1'b0}}, txdata};
     assign reg_clk_div = {{16{1'b0}}, clk_div};
@@ -169,9 +169,34 @@ module avs_i2c_top (
         end
     end
 
+    wire clk_filter;
+    wire scl_i;
+    wire sda_i;
+    clk_divider io_sync_filter_clk(
+        .reset_n (reset_n),
+        .clk_div (clk_div),
+        .clk_i   (clk),     //system clk
+        .clk_o   (clk_filter)
+    );
+
+    io_sync_filter scl_io_sync_filter(
+        .reset_n    (reset_n),
+        .clk_sync   (clk),
+        .clk_filter (clk_filter),
+        .in         (avs_s0_export_scl_i),
+        .out        (scl_i)
+    );
+
+    io_sync_filter sda_io_sync_filter(
+        .reset_n    (reset_n),
+        .clk_sync   (clk),
+        .clk_filter (clk_filter),
+        .in         (avs_s0_export_sda_i),
+        .out        (sda_i)
+    );
 
     i2c_core i2c_core(
-        .clk        (clk),
+        .clk        (clk), //system clock
         .reset_n    (reset_n),
         //data
         .rxdata     (rxdata_nx),
@@ -190,8 +215,8 @@ module avs_i2c_top (
         .start_done (start_done),
         .stop_done  (stop_done),
         //export
-        .sda_i      (avs_s0_export_sda_i),
-        .scl_i      (avs_s0_export_scl_i),
+        .sda_i      (sda_i),
+        .scl_i      (scl_i),
         .sda_o      (avs_s0_export_sda_o),
         .scl_o      (avs_s0_export_scl_o)
     );
