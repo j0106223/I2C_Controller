@@ -31,6 +31,7 @@ module io_sync_filter (
         end
     end
 
+    //Emulate the schmitt trigger
     always @(posedge clk_filter or negedge reset_n) begin
         if (!reset_n) begin
             out <= 1'b1;

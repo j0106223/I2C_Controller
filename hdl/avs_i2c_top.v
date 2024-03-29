@@ -172,9 +172,11 @@ module avs_i2c_top (
     wire clk_filter;
     wire scl_i;
     wire sda_i;
+    wire [15:0] clk_div_filter;
+    assign clk_div_filter = clk_div[15:4];//16x i2c clock freq = clk_div/(2^4)
     clk_divider io_sync_filter_clk(
         .reset_n (reset_n),
-        .clk_div (clk_div),
+        .clk_div (clk_div_filter),
         .clk_i   (clk),     //system clk
         .clk_o   (clk_filter)
     );

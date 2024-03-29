@@ -1,3 +1,4 @@
+#include <"stdint.h">
 void i2c_write(device_id, device_reg, wdata){
     i2c_burst_write(device_id, device_reg, wdata, 1);    
 }
@@ -14,19 +15,40 @@ i2c_burst_write(device_id, device_reg, wdata, burst_cnt){
         wait
      }
         
-    2.set buzy
-    1.set timer
-    1.set i2c struct member to argument value 
-    2.start i2c
-    while(state != IDLE){
-        if(timeout)
-        return;
-    }
+    1.set buzy
+    2.set timer
+    3.set i2c struct member to argument value 
+    4.start i2c
+    return;
 
     */
 }
 i2c_burst_read(device_id, device_reg, rdata, burst_cnt){
     //fsm
+    /*
+    while(buzy)
+    1.set buzy
+    2.set timer
+    3.set  argument value to i2c struct members  
+    4.start i2c
+    */
+}
+struct i2c {
+    uint8_t device_id;
+    uint8_t device_reg_addr;
+    uint8_t rx_buffer;
+    uint8_t tx_buffer;
+    int     burst_cnt;
+    int rw
+    int state
+};
+
+i2c_init() {
+    //set clk_div
+    //state = IDLE
+}
+i2c_isr() {
+    
 }
 void i2c_isr();
 i2c_stop
